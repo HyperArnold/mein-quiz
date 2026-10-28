@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LogikChallenge – Teste deinen Verstand</title>
+  <meta name="description" content="Teste dein logisches Denken mit unserem kostenlosen Logikquiz.">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #0b1020;
+      color: #f8fafc;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 22px;
+      text-align: center;
+      border-bottom: 1px solid #273149;
+    }
+
+    header h1 { margin: 0; color: #60a5fa; }
+    header p { color: #94a3b8; }
+
+    main {
+      width: min(620px, 92%);
+      margin: 35px auto;
+    }
+
+    .card {
+      background: #151d31;
+      padding: 26px;
+      border: 1px solid #293650;
+      border-radius: 18px;
+    }
+
+    .muted { color: #aab7cc; }
+
+    .progress {
+      height: 7px;
+      background: #303b52;
+      border-radius: 9px;
+      overflow: hidden;
+      margin: 18px 0;
+    }
+
+    #progressBar {
+      height: 100%;
+      width: 0;
+      background: #60a5fa;
+      transition: width .2s;
+    }
+
+    #answers {
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    button {
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .answer {
+      text-align: left;
+      color: white;
+      background: #202b43;
+      border: 1px solid #3b4a65;
+    }
+
+    .answer:hover {
+      border-color: #60a5fa;
+      background: #263957;
+    }
+
+    .primary {
+      width: 100%;
+      margin-top: 18px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      font-weight: bold;
+    }
+
+    .primary:hover { background: #2563eb; }
+
+    .ad {
+      margin-top: 20px;
+      min-height: 90px;
+      border: 1px dashed #526078;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .hidden { display: none; }
+
+    .score {
+      font-size: 52px;
+      font-weight: bold;
+      text-align: center;
+      color: #60a5fa;
+    }
+
+    footer {
+      padding: 25px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    footer a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>LogikChallenge</h1>
+  <p>Fordere dein Denken heraus.</p>
+</header>
+
+<main>
+  <section class="card" id="start">
+    <h2>Wie logisch denkst du?</h2>
+    <p class="muted">
+      Beantworte 5 Denkaufgaben und finde heraus,
+      wie viele du richtig lösen kannst.
+    </p>
+    <p>✓ 5 Fragen</p>
+    <p>✓ Sofortige Auswertung nach dem Quiz</p>
+    <p class="muted">
+      Dies ist ein Unterhaltungstest, kein wissenschaftlicher IQ-Test.
+    </p>
+    <button class="primary" onclick="beginQuiz()">
+      Quiz starten
+    </button>
+  </section>
+
+  <section class="card hidden" id="quiz">
+    <div class="muted" id="counter"></div>
+    <div class="progress">
+      <div id="progressBar"></div>
+    </div>
+    <h2 id="question"></h2>
+    <div id="answers"></div>
+    <p id="message" class="muted" aria-live="polite"></p>
+  </section>
+
+  <section class="card hidden" id="result">
+    <h2>Dein Ergebnis ist bereit!</h2>
+    <p class="muted">
+      Du hast alle Fragen beantwortet. Schalte deinen Score
+      frei, um deine Auswertung zu sehen.
+    </p>
+
+    <div id="locked">
+      <div class="score">🔒 ? / 5</div>
+      <p style="text-align:center">
+        Dein persönlicher Score ist noch gesperrt.
+      </p>
+      <button class="primary" onclick="demoUnlock()">
+        Vorschau: Ergebnis ansehen
+      </button>
+      <p class="muted" style="font-size:13px">
+        Demo-Modus: Hier ist noch keine Zahlung aktiviert.
+      </p>
+    </div>
+
+    <div id="unlocked" class="hidden">
+      <div class="score" id="score"></div>
+      <p id="feedback"></p>
+      <button class="primary" onclick="restart()">
+        Nochmal spielen
+      </button>
+    </div>
+  </section>
+
+  <div class="ad">
+    <strong>Werbefläche</strong>
+    <p>Hier kann später ein zugelassener Werbeanbieter Anzeigen zeigen.</p>
+  </div>
+</main>
+
+<footer>
+  <p>LogikChallenge · Unterhaltung und Denkübungen</p>
+  <p>
+    <a href="javascript:void(0)" onclick="alert('Hier später die Datenschutzhinweise einfügen.')">
+      Datenschutz
+    </a>
+    ·
+    <a href="javascript:void(0)" onclick="alert('Hier später das Impressum einfügen.')">
+      Impressum
+    </a>
+  </p>
+</footer>
+
+<script>
+  const questions = [
+    {
+      q: "Welche Zahl kommt als Nächstes? 2, 4, 8, 16, ...",
+      a: ["18", "24", "32", "20"],
+      correct: 2
+    },
+    {
+      q: "Welche Form passt nicht zu den anderen?",
+      a: ["Dreieck", "Quadrat", "Kreis", "Würfel"],
+      correct: 3
+    },
+    {
+      q: "Anna ist älter als Ben. Ben ist älter als Clara. Wer ist am jüngsten?",
+      a: ["Anna", "Ben", "Clara", "Das ist nicht bestimmbar"],
+      correct: 2
+    },
+    {
+      q: "Ein Buch hat 100 Seiten. Du liest 10 Seiten pro Tag. Wie viele Tage brauchst du?",
+      a: ["5", "10", "20", "15"],
+      correct: 1
+    },
+    {
+      q: "Welche Zahl fehlt? 3, 6, 9, 12, ...",
+      a: ["13", "14", "15", "18"],
+      correct: 2
+    }
+  ];
+
+  let current = 0;
+  let points = 0;
+  let finished = false;
+
+  function beginQuiz() {
+    current = 0;
+    points = 0;
+    finished = false;
+
+    document.getElementById("start").classList.add("hidden");
+    document.getElementById("result").classList.add("hidden");
+    document.getElementById("quiz").classList.remove("hidden");
+
+    showQuestion();
+  }
+
+  function showQuestion() {
+    const item = questions[current];
+
+    document.getElementById("counter").textContent =
+      `Frage ${current + 1} von ${questions.length}`;
+
+    document.getElementById("progressBar").style.width =
+      `${current / questions.length * 100}%`;
+
+    document.getElementById("question").textContent = item.q;
+    document.getElementById("message").textContent = "";
+
+    const answers = document.getElementById("answers");
+    answers.replaceChildren();
+
+    item.a.forEach((answer, index) => {
+      const button = document.createElement("button");
+      button.className = "answer";
+      button.textContent = answer;
+      button.onclick = () => chooseAnswer(index);
+      answers.appendChild(button);
+    });
+  }
+
+  function chooseAnswer(index) {
+    if (finished) return;
+
+    if (index === questions[current].correct) {
+      points++;
+    }
+
+    current++;
+
+    if (current < questions.length) {
+      showQuestion();
+    } else {
+      finishQuiz();
+    }
+  }
+
+  function finishQuiz() {
+    finished = true;
+
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("result").classList.remove("hidden");
+    document.getElementById("progressBar").style.width = "100%";
+  }
+
+  // Nur zur Vorschau. Dies ist KEINE echte Bezahlschranke.
+  function demoUnlock() {
+    document.getElementById("locked").classList.add("hidden");
+    document.getElementById("unlocked").classList.remove("hidden");
+
+    document.getElementById("score").textContent =
+      `${points} / ${questions.length}`;
+
+    const percentage = points / questions.length * 100;
+    let text;
+
+    if (percentage === 100) {
+      text = "Fantastisch! Du hast alle Aufgaben richtig gelöst.";
+    } else if (percentage >= 60) {
+      text = "Gut gemacht! Du hast viele Aufgaben richtig gelöst.";
+    } else {
+      text = "Weiter üben! Mit mehr Denkaufgaben wirst du sicherer.";
+    }
+
+    document.getElementById("feedback").textContent = text;
+  }
+
+  function restart() {
+    document.getElementById("locked").classList.remove("hidden");
+    document.getElementById("unlocked").classList.add("hidden");
+    beginQuiz();
+  }
+</script>
+
+</body>
+</html>
